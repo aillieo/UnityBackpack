@@ -20,7 +20,6 @@ namespace AillieoTech.Game
 
         public event Action<Vector3> OnRightMouseClick;
 
-        private bool isLeftMouseDown = false;
         private Vector3 lastMousePosition;
         private bool isDragging = false;
         private Vector3 leftMouseDownPosition;
@@ -36,15 +35,37 @@ namespace AillieoTech.Game
             // 鼠标左键
             if (Input.GetMouseButtonDown(0))
             {
-                isLeftMouseDown = true;
                 leftMouseDownPosition = Input.mousePosition;
                 lastMousePosition = Input.mousePosition;
                 leftMouseDownTime = Time.time;
                 OnMouseDown?.Invoke(Input.mousePosition);
             }
-            else if (Input.GetMouseButtonUp(0))
+
+            if (Input.GetMouseButton(0))
             {
-                isLeftMouseDown = false;
+                if (!isDragging)
+                {
+                    var distance = Vector3.Distance(leftMouseDownPosition, Input.mousePosition);
+                    if (distance > dragThreshold)
+                    {
+                        isDragging = true;
+                        OnMouseDragStart?.Invoke(Input.mousePosition);
+                    }
+                }
+                else
+                {
+                    var distance = Vector3.Distance(lastMousePosition, Input.mousePosition);
+                    if (distance > Vector3.kEpsilon)
+                    {
+                        OnMouseDrag?.Invoke(Input.mousePosition);
+                    }
+                }
+
+                lastMousePosition = Input.mousePosition;
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
                 if (isDragging)
                 {
                     OnMouseDragEnd?.Invoke(Input.mousePosition);
@@ -61,31 +82,6 @@ namespace AillieoTech.Game
                 isDragging = false;
                 this.OnMouseUp?.Invoke(Input.mousePosition);
             }
-            else if (Input.GetMouseButton(0))
-            {
-                if (isLeftMouseDown)
-                {
-                    if (!isDragging)
-                    {
-                        var distance = Vector3.Distance(lastMousePosition, Input.mousePosition);
-                        if (distance > dragThreshold)
-                        {
-                            isDragging = true;
-                            OnMouseDragStart?.Invoke(Input.mousePosition);
-                        }
-                    }
-                    else
-                    {
-                        var distance = Vector3.Distance(lastMousePosition, Input.mousePosition);
-                        if (distance > Vector3.kEpsilon)
-                        {
-                            OnMouseDrag?.Invoke(Input.mousePosition);
-                        }
-                    }
-
-                    lastMousePosition = Input.mousePosition;
-                }
-            }
 
             // 鼠标右键
             if (Input.GetMouseButtonDown(1))
@@ -93,10 +89,12 @@ namespace AillieoTech.Game
                 rightMouseDownPosition = Input.mousePosition;
                 rightMouseDownTime = Time.time;
             }
-            else if (Input.GetMouseButtonUp(1))
+            
+            if (Input.GetMouseButtonUp(1))
             {
                 var pressedTime = Time.time - rightMouseDownTime;
                 var distance = Vector3.Distance(rightMouseDownPosition, Input.mousePosition);
+                UnityEngine.Debug.Log($"pressedTime < clickThreshold = {pressedTime < clickThreshold} distance < dragThreshold = {distance < dragThreshold}");
                 if (pressedTime < clickThreshold && distance < dragThreshold)
                 {
                     OnRightMouseClick?.Invoke(Input.mousePosition);

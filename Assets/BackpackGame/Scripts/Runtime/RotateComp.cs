@@ -1,12 +1,14 @@
-﻿namespace AillieoTech.Game
+namespace AillieoTech.Game
 {
+    using System.Collections;
     using UnityEngine;
 
+    [DisallowMultipleComponent]
     public class RotateComp : MonoBehaviour
     {
         private bool isRotating = false;
         private float targetRotation = 0f;
-        private float rotationSpeed = 90f;
+        private float rotationSpeedFactor = 2.4f;
 
         public void Rotate()
         {
@@ -16,29 +18,49 @@
             }
 
             // 设置旋转相关参数
-            targetRotation = transform.rotation.eulerAngles.z + 90f;
+            var rotationIndex = GridUtils.AngleToRotationIndex(this.transform.localEulerAngles.z);
+            rotationIndex = rotationIndex + 1;
+            rotationIndex = rotationIndex % 4;
+            targetRotation = GridUtils.RotationIndexToAngle(rotationIndex);
 
             // 启动旋转协程
             StartCoroutine(RotateCoroutine());
         }
 
-        private System.Collections.IEnumerator RotateCoroutine()
+        public void FixRotation()
+        {
+            if (isRotating)
+            {
+                return;
+            }
+
+            // 设置旋转相关参数
+            var eulerAngles = GridUtils.SnapAngle(this.transform.localEulerAngles);
+            targetRotation = eulerAngles.z;
+
+            // 启动旋转协程
+            StartCoroutine(RotateCoroutine());
+        }
+
+        private IEnumerator RotateCoroutine()
         {
             isRotating = true;
-            float startRotation = transform.rotation.eulerAngles.z;
-            float timer = 0f;
+            float startRotation = transform.localEulerAngles.z;
+            float rotateRatio = 0f;
 
-            while (timer < 1f)
+            while (rotateRatio < 1f)
             {
                 // 计算当前的旋转角度
-                float currentRotation = Mathf.Lerp(startRotation, targetRotation, timer);
-                transform.rotation = Quaternion.Euler(0f, currentRotation, 0f);
+                float currentRotation = Mathf.LerpAngle(startRotation, targetRotation, rotateRatio);
+                transform.localEulerAngles = new Vector3(0f, 0f, currentRotation);
 
                 // 更新计时器
-                timer += Time.deltaTime * rotationSpeed;
+                rotateRatio += Time.deltaTime * rotationSpeedFactor;
 
                 yield return null;
             }
+
+            transform.localEulerAngles = new Vector3(0f, 0f, targetRotation);
 
             // 完成旋转后调用回调方法（如果有）
             this.isRotating = false;

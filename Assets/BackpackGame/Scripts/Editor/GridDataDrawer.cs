@@ -9,7 +9,7 @@ namespace AillieoTech.Game
     using UnityEditor;
     using UnityEngine;
 
-    [CustomPropertyDrawer(typeof(GridData))]
+    [CustomPropertyDrawer(typeof(BaseGridData<>), true)]
     public class GridDataDrawer : PropertyDrawer
     {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -51,6 +51,7 @@ namespace AillieoTech.Game
             var propertyData = property.FindPropertyRelative("data");
             var secondRowStart = position.y + singleLineHeight;
             var singleElementRectWidth = position.width / width;
+            singleElementRectWidth = Mathf.Min(singleElementRectWidth, 80);
             var singleElementRect = new Rect(position.x, secondRowStart, singleElementRectWidth, singleLineHeight);
             for (var y = height - 1; y >= 0; y--)
             {

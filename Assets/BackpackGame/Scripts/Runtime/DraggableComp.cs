@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="DraggableComp.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
@@ -11,15 +11,10 @@ namespace AillieoTech.Game
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     [RequireComponent(typeof(ItemDataComp))]
+    [RequireComponent(typeof(RotateComp))]
+    [DisallowMultipleComponent]
     public class DraggableComp : MonoBehaviour
     {
-        // 该物体所属的图层
-        public GridLayer itemBelongingLayer;
-        // 可放置该物体的图层
-        public GridLayer layerRequired;
-
-        public bool isAttachedToBackpackGrid;
-
         private Vector3 dragStartOffset;
 
         private Collider2D colliderValue;
@@ -67,6 +62,21 @@ namespace AillieoTech.Game
             }
         }
 
+        private RotateComp rotateCompValue;
+
+        private RotateComp rotateComp
+        {
+            get
+            {
+                if (rotateCompValue == null)
+                {
+                    rotateCompValue = this.gameObject.GetComponent<RotateComp>();
+                }
+
+                return rotateCompValue;
+            }
+        }
+
         private void OnEnable()
         {
             // this.transform.position = GridUtils.SnapGrid(this.transform.position, this.gridData.GetShape());
@@ -74,53 +84,13 @@ namespace AillieoTech.Game
 
         public void OnDragEnd(Vector3 screenPosition)
         {
-            var attached = false;
+            var attached = BackpackManager.Instance.TryAttachItem(this);
 
-            var wallGrids = BackpackManager.Instance.wallGrids;
-            var gridPosition = GridUtils.WorldPositionToGridPositionLB(this.transform.position, this.gridData.GetShape());
-            var offset = gridPosition - BackpackManager.Instance.wallGridsStart;
-
-            bool predicate(int wall, int item)
+            if (attached)
             {
-                if (item == 0)
-                {
-                    return true;
-                }
-
-                var wallLayer = (GridLayer)wall;
-                if ((wallLayer & this.layerRequired) == 0)
-                {
-                    // 不能放置
-                    return false;
-                }
-
-                if ((wallLayer & this.itemBelongingLayer) != 0)
-                {
-                    // overlap
-                    return false;
-                }
-
-                return true;
-            }
-
-            if (wallGrids.MatchAll(this.gridData, offset, predicate, 0))
-            {
-                wallGrids.Operate(this.gridData, offset, (wall, item) =>
-                {
-                    if (item != 0)
-                    {
-                        return wall | (int)this.itemBelongingLayer;
-                    }
-
-                    return wall;
-                }, 0);
-
-                this.isAttachedToBackpackGrid = true;
                 this.transform.position = GridUtils.SnapGrid(this.transform.position, this.gridData.GetShape());
-                attached = true;
             }
-
-            if (!attached)
+            else
             {
                 this.SwitchSimulation(true);
             }
@@ -141,36 +111,28 @@ namespace AillieoTech.Game
             dragStartOffset = dragStartWorld - this.transform.position;
 
             SwitchSimulation(false);
+            this.rotateComp.FixRotation();
 
-            if (this.isAttachedToBackpackGrid)
+            var detached = BackpackManager.Instance.DetachItem(this);
+            if (!detached)
             {
-                var wallGrids = BackpackManager.Instance.wallGrids;
-                var gridPosition = GridUtils.WorldPositionToGridPositionLB(this.transform.position, this.gridData.GetShape());
-                var offset = gridPosition - BackpackManager.Instance.wallGridsStart;
-
-                wallGrids.Operate(this.gridData, offset, (wall, item) =>
-                {
-                    if (item != 0)
-                    {
-                        return wall & (~(int)this.itemBelongingLayer);
-                    }
-
-                    return wall;
-                },
-                    0);
-
-                this.isAttachedToBackpackGrid = false;
+                //this.rotateComp.FixRotation();
             }
-
-            this.FixRotation();
         }
 
         public void OnSimpleTap(Vector3 screenPosition)
         {
         }
 
-        private void SwitchSimulation(bool isOn)
+        public void OnRotateRequest()
         {
+            rotateComp.Rotate();
+        }
+
+        public void SwitchSimulation(bool isOn)
+        {
+            UnityEngine.Debug.Log("SwitchSimulation " + this.name + " " + isOn);
+
             if (isOn)
             {
                 this.rigidbody.velocity = Vector2.zero;
@@ -184,11 +146,6 @@ namespace AillieoTech.Game
                 this.rigidbody.bodyType = RigidbodyType2D.Kinematic;
                 this.collider.isTrigger = true;
             }
-        }
-
-        private void FixRotation()
-        {
-            this.transform.localEulerAngles = GridUtils.SnapAngle(this.transform.localEulerAngles);
         }
 
         private void OnDrawGizmos()

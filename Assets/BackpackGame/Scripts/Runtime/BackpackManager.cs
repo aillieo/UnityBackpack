@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="BackpackManager.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
@@ -7,6 +7,8 @@
 namespace AillieoTech.Game
 {
     using AillieoUtils;
+    using System.Collections.Generic;
+    using System.Linq;
     using UnityEngine;
 
     public class BackpackManager : SingletonMonoBehaviour<BackpackManager>
@@ -26,6 +28,9 @@ namespace AillieoTech.Game
         public GridData wallGrids = new GridData(20, 10);
         public Vector2Int wallGridsStart = new Vector2Int(-10, -5);
 
+        public Dictionary<Vector2Int, List<DraggableComp>> gridToItemLookup = new Dictionary<Vector2Int, List<DraggableComp>>();
+        public Dictionary<DraggableComp, Vector2Int> attachedItems = new Dictionary<DraggableComp, Vector2Int>();
+
         private MouseEvents mouseEvents
         {
             get
@@ -39,6 +44,79 @@ namespace AillieoTech.Game
             }
         }
 
+        public bool TryAttachItem(DraggableComp item)
+        {
+            var gridPosition = GridUtils.WorldPositionToGridPositionLB(item.transform.position, item.gridData.GetShape());
+            var offset = gridPosition - wallGridsStart;
+
+            if (GridUtils.CanHold(wallGrids, item.gridData, offset))
+            {
+                GridUtils.Union(wallGrids, item.gridData, offset);
+
+                this.attachedItems.Add(item, gridPosition);
+
+                for (var x = 0; x < item.gridData.Width; x++)
+                {
+                    for (var y = 0; y < item.gridData.Height; y++)
+                    {
+                        if (item.gridData[x, y] != 0)
+                        {
+                            var grid = gridPosition = new Vector2Int(x, y);
+                            var list = this.gridToItemLookup.GetOrAdd(grid, () => new List<DraggableComp>());
+                            list.Add(item);
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool DetachItem(DraggableComp item)
+        {
+            if (!this.attachedItems.TryGetValue(item, out var gridLB))
+            {
+                return false;
+            }
+
+            Debug.Log("will detach " + item);
+
+            var gridPosition = GridUtils.WorldPositionToGridPositionLB(item.transform.position, item.gridData.GetShape());
+            var offset = gridPosition - wallGridsStart;
+
+            GridUtils.Subtract(wallGrids, item.gridData, offset);
+
+            this.attachedItems.Remove(item);
+
+            for (var x = 0; x < item.gridData.Width; x++)
+            {
+                for (var y = 0; y < item.gridData.Height; y++)
+                {
+                    if (item.gridData[x, y] != 0)
+                    {
+                        var grid = gridPosition = new Vector2Int(x, y);
+                        var list = this.gridToItemLookup.GetOrAdd(grid, () => new List<DraggableComp>());
+
+                        var index = list.IndexOf(item);
+                        if (index >= 0)
+                        {
+                            // 需要移除 index 后边的
+                            for (int i = list.Count - 1; i > index; i--)
+                            {
+                                var item2 = list[i];
+                                DetachItem(item2);
+                                item2.SwitchSimulation(true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
         protected override void Awake()
         {
             base.Awake();
@@ -48,7 +126,7 @@ namespace AillieoTech.Game
             {
                 for (var y = 0; y < this.wallGrids.Height; y++)
                 {
-                    this.wallGrids[x, y] = (int)GridLayer.Wall;
+                    this.wallGrids[x, y] = GridLayer.Wall;
                 }
             }
         }
@@ -140,20 +218,20 @@ namespace AillieoTech.Game
                         var worldPosition =
                             GridUtils.GridPositionToWorldPosition(new Vector2Int(x, y) + this.wallGridsStart);
 
-                        if (value == (int)GridLayer.Wall)
+                        if (value == GridLayer.Wall)
                         {
                             Gizmos.DrawWireCube(worldPosition, Vector3.one * 0.5f);
                         }
                         else
                         {
                             var backup = Gizmos.color;
-                            if ((value & (int)GridLayer.Backpack) != 0)
+                            if ((value & GridLayer.Backpack) != 0)
                             {
                                 Gizmos.color = Color.green;
                                 Gizmos.DrawCube(worldPosition, Vector3.one * 0.5f);
                             }
 
-                            if ((value & (int)GridLayer.Item) != 0)
+                            if ((value & GridLayer.Item) != 0)
                             {
                                 Gizmos.color = Color.red;
                                 Gizmos.DrawCube(worldPosition, Vector3.one * 0.25f);
@@ -170,10 +248,7 @@ namespace AillieoTech.Game
         {
             if (this.selectedDraggable != null)
             {
-                if (this.selectedDraggable.gameObject.TryGetComponent<RotateComp>(out var rotateComp))
-                {
-                    rotateComp.Rotate();
-                }
+                this.selectedDraggable.OnRotateRequest();
             }
         }
     }

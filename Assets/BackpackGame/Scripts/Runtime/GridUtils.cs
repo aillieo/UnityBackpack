@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="GridUtils.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
@@ -6,11 +6,19 @@
 
 namespace AillieoTech.Game
 {
+    using System.Collections.Generic;
     using UnityEngine;
 
     public static class GridUtils
     {
         public static readonly float gridSize = 1;
+
+        public static readonly Dictionary<GridLayer, GridLayer> gridRequirementMappings = new Dictionary<GridLayer, GridLayer>() {
+            { GridLayer.Wall, GridLayer.None },
+            { GridLayer.Backpack, GridLayer.Wall},
+            { GridLayer.Item, GridLayer.Backpack},
+            { GridLayer.Diamond, GridLayer.Slot},
+        };
 
         public static Vector2Int WorldPositionToGridPosition(Vector3 worldPosition)
         {
@@ -68,17 +76,55 @@ namespace AillieoTech.Game
             return rotationIndex;
         }
 
+        public static float RotationIndexToAngle(int rotationIndex)
+        {
+            return rotationIndex * 90;
+        }
+
         public static Vector3 SnapAngle(Vector3 localEulerAngles)
         {
             var index = AngleToRotationIndex(localEulerAngles.z);
 
-            localEulerAngles.z = index * 90;
+            localEulerAngles.z = RotationIndexToAngle(index);
             return localEulerAngles;
         }
 
         public static bool CanHold(GridData first, GridData other, Vector2Int offset)
         {
-            return first.MatchAll(other, offset, (a, b) => a == 0 || b == 0, 0);
+            return first.MatchAll(other, offset, (a, b) => {
+
+                UnityEngine.Debug.Log($"in can hold: a={a} b={b}");
+
+                if (b == 0)
+                {
+                    return true;
+                }
+
+                if ((a & b) != 0)
+                {
+                    // a 已放置了与b相同的
+                    // overlap
+                    return false;
+                }
+
+                if (gridRequirementMappings.TryGetValue(b, out var required))
+                {
+                    if ((a & required) != required)
+                    {
+                        // a 不包含 required
+                        // 不能放置
+                        return false;
+                    }
+                }
+                else
+                {
+                    // 未定义 requre
+                    // 不能放置
+                    return false;
+                }
+
+                return true;
+            }, 0);
         }
 
         public static void Union(GridData first, GridData other, Vector2Int offset)
@@ -91,23 +137,59 @@ namespace AillieoTech.Game
             first.Operate(other, offset, (a, b) => a & ~b, 0);
         }
 
-        public static T[] RotateArray<T>(T[] inputArray, int width, int height, bool clockwise)
+        public static GridData GetRotated(GridData first, int rotationIndex)
         {
-            var rotatedShape = new T[width * height];
-
-            for (var x = 0; x < width; x++)
+            if (rotationIndex == 0)
             {
-                for (var y = 0; y < height; y++)
+                return first;
+            }
+
+            GridData rotated;
+
+            int width = first.Width;
+            int height = first.Height;
+
+            if (rotationIndex == 1 || rotationIndex == 3)
+            {
+                rotated = new GridData(first.Height, first.Width);
+            }
+            else
+            {
+                // rotationIndex == 2
+                rotated = new GridData(first.Width, first.Height);
+            }
+
+            int newWidth = rotated.Width;
+            int newHeight = rotated.Height;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
                 {
-                    var index = (y * width) + x;
-                    var newX = clockwise ? y : height - y - 1;
-                    var newY = clockwise ? width - x - 1 : x;
-                    var newIndex = (newX * height) + newY;
-                    rotatedShape[newIndex] = inputArray[index];
+                    int newX, newY;
+
+                    if (rotationIndex == 1)
+                    {
+                        newX = newHeight - 1 - y;
+                        newY = x;
+                    }
+                    else if(rotationIndex == 3)
+                    {
+                        newX = y;
+                        newY = newWidth - 1 - x;
+                    }
+                    else
+                    {
+                        // rotationIndex == 2
+                        newX = newWidth - 1 - x;
+                        newY = newHeight - 1 - y;
+                    }
+
+                    rotated[newX, newY] = first[x, y];
                 }
             }
 
-            return rotatedShape;
+            return rotated;
         }
     }
 }

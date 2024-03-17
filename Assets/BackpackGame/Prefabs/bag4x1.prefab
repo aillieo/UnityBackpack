@@ -110,6 +110,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
         type: 3}
+      propertyPath: grids.data.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[1]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[2]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[3]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
       propertyPath: grids.data.Array.data[9]
       value: 1
       objectReference: {fileID: 0}

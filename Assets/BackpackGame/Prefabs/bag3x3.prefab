@@ -98,5 +98,60 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.width
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.size
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[1]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[2]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[3]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[4]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[5]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[6]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[7]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8896891761152585648, guid: 1b2ec04165d03f7479d91a0028cf145f,
+        type: 3}
+      propertyPath: grids.data.Array.data[8]
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1b2ec04165d03f7479d91a0028cf145f, type: 3}

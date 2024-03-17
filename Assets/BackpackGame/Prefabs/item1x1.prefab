@@ -23,6 +23,11 @@ PrefabInstance:
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7698488001315489956, guid: e94c8efae0367334e8e97a4d0fbd4f2c,
+        type: 3}
+      propertyPath: grids.data.Array.data[0]
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 8825912000914830776, guid: e94c8efae0367334e8e97a4d0fbd4f2c,
         type: 3}
       propertyPath: m_RootOrder
