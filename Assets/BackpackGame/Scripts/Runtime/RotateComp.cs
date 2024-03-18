@@ -1,14 +1,33 @@
 namespace AillieoTech.Game
 {
+    using System;
     using System.Collections;
     using UnityEngine;
 
     [DisallowMultipleComponent]
     public class RotateComp : MonoBehaviour
     {
+        public event Action OnRotationIndexChanged;
+
         private bool isRotating = false;
         private float targetRotation = 0f;
         private float rotationSpeedFactor = 2.4f;
+
+        private int currentRotationIndexValue;
+
+        public int currentRotationIndex
+        {
+            get { return currentRotationIndexValue; }
+
+            set
+            {
+                if (currentRotationIndexValue != value)
+                {
+                    currentRotationIndexValue = value;
+                    OnRotationIndexChanged?.Invoke();
+                }
+            }
+        }
 
         public void Rotate()
         {
@@ -53,6 +72,8 @@ namespace AillieoTech.Game
                 // 计算当前的旋转角度
                 float currentRotation = Mathf.LerpAngle(startRotation, targetRotation, rotateRatio);
                 transform.localEulerAngles = new Vector3(0f, 0f, currentRotation);
+
+                this.currentRotationIndex = GridUtils.AngleToRotationIndex(currentRotation);
 
                 // 更新计时器
                 rotateRatio += Time.deltaTime * rotationSpeedFactor;

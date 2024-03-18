@@ -151,16 +151,13 @@ namespace AillieoTech.Game
 
             if (rotationIndex == 1 || rotationIndex == 3)
             {
-                rotated = new GridData(first.Height, first.Width);
+                rotated = new GridData(height, width);
             }
             else
             {
                 // rotationIndex == 2
-                rotated = new GridData(first.Width, first.Height);
+                rotated = new GridData(width, height);
             }
-
-            int newWidth = rotated.Width;
-            int newHeight = rotated.Height;
 
             for (int x = 0; x < width; x++)
             {
@@ -170,19 +167,19 @@ namespace AillieoTech.Game
 
                     if (rotationIndex == 1)
                     {
-                        newX = newHeight - 1 - y;
+                        newX = height - 1 - y;
                         newY = x;
                     }
                     else if(rotationIndex == 3)
                     {
                         newX = y;
-                        newY = newWidth - 1 - x;
+                        newY = width - 1 - x;
                     }
                     else
                     {
                         // rotationIndex == 2
-                        newX = newWidth - 1 - x;
-                        newY = newHeight - 1 - y;
+                        newX = width - 1 - x;
+                        newY = height - 1 - y;
                     }
 
                     rotated[newX, newY] = first[x, y];
@@ -190,6 +187,19 @@ namespace AillieoTech.Game
             }
 
             return rotated;
+        }
+
+        public static bool FullyContains(GridData first, GridData other, Vector2Int offset)
+        {
+            return first.MatchAll(other, offset, (a, b) => {
+                if (b == 0)
+                {
+                    return true;
+                }
+
+                return a != 0;
+
+            }, 0);
         }
     }
 }

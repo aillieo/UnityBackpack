@@ -48,6 +48,7 @@ namespace AillieoTech.Game
         }
 
         private GridData gridDataValue;
+        private GridData rotatedGridDataValue;
 
         public GridData gridData
         {
@@ -58,7 +59,20 @@ namespace AillieoTech.Game
                     gridDataValue = this.gameObject.GetComponent<ItemDataComp>().gridData;
                 }
 
-                return gridDataValue;
+                var rotationIndex = this.rotateComp.currentRotationIndex;
+                if(rotationIndex == 0)
+                {
+                    return gridDataValue;
+                }
+                else
+                {
+                    if(rotatedGridDataValue == null)
+                    {
+                        rotatedGridDataValue = GridUtils.GetRotated(this.gridDataValue, rotationIndex);
+                    }
+
+                    return rotatedGridDataValue;
+                }
             }
         }
 
@@ -79,7 +93,12 @@ namespace AillieoTech.Game
 
         private void OnEnable()
         {
-            // this.transform.position = GridUtils.SnapGrid(this.transform.position, this.gridData.GetShape());
+            this.rotateComp.OnRotationIndexChanged += this.OnRotationIndexChanged;
+        }
+
+        private void OnDisable()
+        {
+            this.rotateComp.OnRotationIndexChanged -= this.OnRotationIndexChanged;
         }
 
         public void OnDragEnd(Vector3 screenPosition)
@@ -146,6 +165,11 @@ namespace AillieoTech.Game
                 this.rigidbody.bodyType = RigidbodyType2D.Kinematic;
                 this.collider.isTrigger = true;
             }
+        }
+
+        private void OnRotationIndexChanged()
+        {
+            this.rotatedGridDataValue = null;
         }
 
         private void OnDrawGizmos()

@@ -1,4 +1,4 @@
-﻿
+
 namespace AillieoTech.Game
 {
     using System;

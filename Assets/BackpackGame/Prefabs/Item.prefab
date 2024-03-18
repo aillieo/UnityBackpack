@@ -9,10 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8825912000914830776}
-  - component: {fileID: 1563749053831545385}
+  - component: {fileID: 132947061469310717}
   - component: {fileID: 6794824648448188898}
   - component: {fileID: 7698488001315489956}
   - component: {fileID: 2391661063554132625}
+  - component: {fileID: 1722933422447120926}
   m_Layer: 0
   m_Name: Item
   m_TagString: Untagged
@@ -35,8 +36,8 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &1563749053831545385
-BoxCollider2D:
+--- !u!60 &132947061469310717
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -51,16 +52,20 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.03, y: 1.07}
-    newSize: {x: 1.03, y: 1.07}
-    adaptiveTilingThreshold: 0.5
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0, y: 1}
+      - {x: -0.95105654, y: 0.30901697}
+      - {x: -0.5877852, y: -0.80901706}
+      - {x: 0.58778536, y: -0.80901694}
+      - {x: 0.9510565, y: 0.30901712}
 --- !u!50 &6794824648448188898
 Rigidbody2D:
   serializedVersion: 4
@@ -109,9 +114,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 616d9cc474f70f042862d432e4041928, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemBelongingLayer: 4
-  layerRequired: 2
-  isAttachedToBackpackGrid: 0
+--- !u!114 &1722933422447120926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236781192904785642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a4a630740d24b81960ec83431a2f49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7164610873168633733
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,6 +172,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
