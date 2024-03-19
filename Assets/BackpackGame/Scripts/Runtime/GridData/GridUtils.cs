@@ -13,13 +13,6 @@ namespace AillieoTech.Game
     {
         public static readonly float gridSize = 1;
 
-        public static readonly Dictionary<GridLayer, GridLayer> gridRequirementMappings = new Dictionary<GridLayer, GridLayer>() {
-            { GridLayer.Wall, GridLayer.None },
-            { GridLayer.Backpack, GridLayer.Wall},
-            { GridLayer.Item, GridLayer.Backpack},
-            { GridLayer.Gem, GridLayer.Slot},
-        };
-
         public static Vector2Int WorldPositionToGridPosition(Vector3 worldPosition)
         {
             var x = Mathf.RoundToInt(worldPosition.x / gridSize);
@@ -87,117 +80,6 @@ namespace AillieoTech.Game
 
             eulerAngles.z = RotationIndexToAngle(index);
             return eulerAngles;
-        }
-
-        public static bool CanHold(GridData first, GridData other, Vector2Int offset)
-        {
-            return first.MatchAll(other, offset, (a, b) => {
-
-                if (b == 0)
-                {
-                    return true;
-                }
-
-                if ((a & b) != 0)
-                {
-                    // a 已放置了与b相同的
-                    // overlap
-                    return false;
-                }
-
-                if (gridRequirementMappings.TryGetValue(b, out var required))
-                {
-                    if ((a & required) != required)
-                    {
-                        // a 不包含 required
-                        // 不能放置
-                        return false;
-                    }
-                }
-                else
-                {
-                    // 未定义 requre
-                    // 不能放置
-                    return false;
-                }
-
-                return true;
-            }, 0);
-        }
-
-        public static void Union(GridData first, GridData other, Vector2Int offset)
-        {
-            first.Operate(other, offset, (a, b) => a | b, 0);
-        }
-
-        public static void Subtract(GridData first, GridData other, Vector2Int offset)
-        {
-            first.Operate(other, offset, (a, b) => a & ~b, 0);
-        }
-
-        public static GridData GetRotated(GridData first, int rotationIndex)
-        {
-            if (rotationIndex == 0)
-            {
-                return first;
-            }
-
-            GridData rotated;
-
-            int width = first.Width;
-            int height = first.Height;
-
-            if (rotationIndex == 1 || rotationIndex == 3)
-            {
-                rotated = new GridData(height, width);
-            }
-            else
-            {
-                // rotationIndex == 2
-                rotated = new GridData(width, height);
-            }
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    int newX, newY;
-
-                    if (rotationIndex == 1)
-                    {
-                        newX = height - 1 - y;
-                        newY = x;
-                    }
-                    else if(rotationIndex == 3)
-                    {
-                        newX = y;
-                        newY = width - 1 - x;
-                    }
-                    else
-                    {
-                        // rotationIndex == 2
-                        newX = width - 1 - x;
-                        newY = height - 1 - y;
-                    }
-
-                    rotated[newX, newY] = first[x, y];
-                }
-            }
-
-            return rotated;
-        }
-
-        public static bool FullyContains(GridData first, GridData other, Vector2Int offset)
-        {
-            return first.MatchAll(other, offset, (a, b) => {
-                if (b == 0)
-                {
-                    return true;
-                }
-
-                return a != 0;
-
-            }, 0);
         }
     }
 }

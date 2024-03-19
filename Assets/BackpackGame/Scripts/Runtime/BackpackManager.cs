@@ -201,11 +201,11 @@ namespace AillieoTech.Game
                     var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
 
                     // 检查是否有子物体 有的话 先detach
-                    if (gridToItemLookup.TryGetValue(wallLocal, out var item))
-                    {
-                        DetachItem(item);
-                        item.physicsComp.SwitchSimulation(true);
-                    }
+                    //if (gridToItemLookup.TryGetValue(wallLocal, out var item))
+                    //{
+                    //    DetachItem(item);
+                    //    item.physicsComp.SwitchSimulation(true);
+                    //}
 
                     wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Backpack);
 

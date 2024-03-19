@@ -1,19 +1,17 @@
 // -----------------------------------------------------------------------
-// <copyright file="GridLayer.cs" company="AillieoTech">
+// <copyright file="GridDataDrawer.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace AillieoTech.Game
 {
-    using System;
+    using UnityEditor;
+    using UnityEngine;
 
-    [Flags]
-    public enum GridLayer
+    [DisallowMultipleComponent]
+    [CustomEditor(typeof(GridDataComp))]
+    public class GridDataCompEditor : Editor
     {
-        None = 0,
-        Wall = 1,
-        Backpack = 2,
-        Item = 4,
     }
 }

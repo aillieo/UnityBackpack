@@ -93,27 +93,36 @@ namespace AillieoTech.Game
             {
                 this.transform.position = GridUtils.SnapGrid(this.transform.position, this.gridData.GetWorldShape());
 
-                //// 处理子节点
-                //var list = new List<BPItemComp>();
-                //this.gameObject.GetDirectChildrenComponents(list);
-                //foreach (var childComp in list)
-                //{
-                //    var childAttached = BackpackManager.Instance.TryAttachItem(childComp);
-                //    Assert.IsTrue(childAttached);
-                //}
+                // 处理子节点
+                var list = new List<BPItemComp>();
+                this.gameObject.GetDirectChildrenComponents(list);
+                foreach (var childComp in list)
+                {
+                    childComp.transform.SetParent(BackpackManager.Instance.wallNode, true);
+
+                    var childAttached = BackpackManager.Instance.TryAttachItem(childComp);
+                    if (childAttached)
+                    {
+                        childComp.transform.position = GridUtils.SnapGrid(childComp.transform.position, childComp.gridData.GetWorldShape());
+                    }
+                    else
+                    {
+                        childComp.physicsComp.SwitchSimulation(true);
+                    }
+                }
             }
             else
             {
-                this.physicsComp.SwitchSimulation(true);
+                // 处理子节点
+                var list = new List<BPItemComp>();
+                this.gameObject.GetDirectChildrenComponents(list);
+                foreach (var childComp in list)
+                {
+                    childComp.transform.SetParent(BackpackManager.Instance.wallNode, true);
+                    childComp.physicsComp.SwitchSimulation(true);
+                }
 
-                //// 处理子节点
-                //var list = new List<BPItemComp>();
-                //this.gameObject.GetDirectChildrenComponents(list);
-                //foreach (var childComp in list)
-                //{
-                //    childComp.transform.SetParent(BackpackManager.Instance.wallNode, true);
-                //    childComp.physicsComp.SwitchSimulation(true);
-                //}
+                this.physicsComp.SwitchSimulation(true);
             }
         }
 
@@ -124,14 +133,24 @@ namespace AillieoTech.Game
             this.physicsComp.SwitchSimulation(false);
             this.rotateComp.FixRotation();
 
+            // 处理子节点
+            foreach (var pair in BackpackManager.Instance.gridToContainerLookup)
+            {
+                if (pair.Value == this)
+                {
+                    if (BackpackManager.Instance.gridToItemLookup.TryGetValue(pair.Key, out var item))
+                    {
+                        BackpackManager.Instance.DetachItem(item);
+                        item.transform.SetParent(this.transform, true);
+                    }
+                }
+            }
+
             var detached = BackpackManager.Instance.DetachContainer(this);
             if (!detached)
             {
                 //this.rotateComp.FixRotation();
             }
-
-            // 处理子节点
-
         }
 
         private void OnRotationIndexChanged()
@@ -139,12 +158,12 @@ namespace AillieoTech.Game
             UnityEngine.Debug.Log("OnRotationIndexChanged: " + this.name);
 
             // 处理子节点
-            var list = new List<BPItemComp>();
-            this.gameObject.GetDirectChildrenComponents(list);
-            foreach (var childComp in list)
-            {
-                childComp.rotateComp.RecalculateRotationIndex();
-            }
+            //var list = new List<BPItemComp>();
+            //this.gameObject.GetDirectChildrenComponents(list);
+            //foreach (var childComp in list)
+            //{
+            //    childComp.rotateComp.RecalculateRotationIndex();
+            //}
         }
     }
 }

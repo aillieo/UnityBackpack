@@ -8,6 +8,7 @@ namespace AillieoTech.Game
     public class RotateComp : MonoBehaviour
     {
         public event Action OnRotationIndexChanged;
+        public event Action OnDidRotate;
 
         private bool isRotating = false;
         private float targetRotation = 0f;
@@ -83,13 +84,8 @@ namespace AillieoTech.Game
 
             transform.eulerAngles = new Vector3(0f, 0f, targetRotation);
 
-            // 完成旋转后调用回调方法（如果有）
             this.isRotating = false;
-            this.OnDidRotate();
-        }
-
-        private void OnDidRotate()
-        {
+            this.OnDidRotate?.Invoke();
         }
 
         public void RecalculateRotationIndex()
