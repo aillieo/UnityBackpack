@@ -17,7 +17,7 @@ namespace AillieoTech.Game
             { GridLayer.Wall, GridLayer.None },
             { GridLayer.Backpack, GridLayer.Wall},
             { GridLayer.Item, GridLayer.Backpack},
-            { GridLayer.Diamond, GridLayer.Slot},
+            { GridLayer.Gem, GridLayer.Slot},
         };
 
         public static Vector2Int WorldPositionToGridPosition(Vector3 worldPosition)
@@ -81,19 +81,17 @@ namespace AillieoTech.Game
             return rotationIndex * 90;
         }
 
-        public static Vector3 SnapAngle(Vector3 localEulerAngles)
+        public static Vector3 SnapAngle(Vector3 eulerAngles)
         {
-            var index = AngleToRotationIndex(localEulerAngles.z);
+            var index = AngleToRotationIndex(eulerAngles.z);
 
-            localEulerAngles.z = RotationIndexToAngle(index);
-            return localEulerAngles;
+            eulerAngles.z = RotationIndexToAngle(index);
+            return eulerAngles;
         }
 
         public static bool CanHold(GridData first, GridData other, Vector2Int offset)
         {
             return first.MatchAll(other, offset, (a, b) => {
-
-                UnityEngine.Debug.Log($"in can hold: a={a} b={b}");
 
                 if (b == 0)
                 {

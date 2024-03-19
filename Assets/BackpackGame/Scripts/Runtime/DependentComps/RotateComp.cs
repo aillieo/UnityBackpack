@@ -19,7 +19,7 @@ namespace AillieoTech.Game
         {
             get { return currentRotationIndexValue; }
 
-            set
+            private set
             {
                 if (currentRotationIndexValue != value)
                 {
@@ -37,7 +37,7 @@ namespace AillieoTech.Game
             }
 
             // 设置旋转相关参数
-            var rotationIndex = GridUtils.AngleToRotationIndex(this.transform.localEulerAngles.z);
+            var rotationIndex = GridUtils.AngleToRotationIndex(this.transform.eulerAngles.z);
             rotationIndex = rotationIndex + 1;
             rotationIndex = rotationIndex % 4;
             targetRotation = GridUtils.RotationIndexToAngle(rotationIndex);
@@ -54,7 +54,7 @@ namespace AillieoTech.Game
             }
 
             // 设置旋转相关参数
-            var eulerAngles = GridUtils.SnapAngle(this.transform.localEulerAngles);
+            var eulerAngles = GridUtils.SnapAngle(this.transform.eulerAngles);
             targetRotation = eulerAngles.z;
 
             // 启动旋转协程
@@ -64,24 +64,24 @@ namespace AillieoTech.Game
         private IEnumerator RotateCoroutine()
         {
             isRotating = true;
-            float startRotation = transform.localEulerAngles.z;
+            float startRotation = transform.eulerAngles.z;
             float rotateRatio = 0f;
 
             while (rotateRatio < 1f)
             {
                 // 计算当前的旋转角度
                 float currentRotation = Mathf.LerpAngle(startRotation, targetRotation, rotateRatio);
-                transform.localEulerAngles = new Vector3(0f, 0f, currentRotation);
+                transform.eulerAngles = new Vector3(0f, 0f, currentRotation);
 
-                this.currentRotationIndex = GridUtils.AngleToRotationIndex(currentRotation);
-
+                RecalculateRotationIndex();
+                
                 // 更新计时器
                 rotateRatio += Time.deltaTime * rotationSpeedFactor;
 
                 yield return null;
             }
 
-            transform.localEulerAngles = new Vector3(0f, 0f, targetRotation);
+            transform.eulerAngles = new Vector3(0f, 0f, targetRotation);
 
             // 完成旋转后调用回调方法（如果有）
             this.isRotating = false;
@@ -90,6 +90,11 @@ namespace AillieoTech.Game
 
         private void OnDidRotate()
         {
+        }
+
+        public void RecalculateRotationIndex()
+        {
+            this.currentRotationIndex = GridUtils.AngleToRotationIndex(this.transform.eulerAngles.z);
         }
     }
 }

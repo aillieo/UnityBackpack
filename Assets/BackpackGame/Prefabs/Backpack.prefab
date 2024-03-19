@@ -96,6 +96,8 @@ GameObject:
   - component: {fileID: 5440066536979755551}
   - component: {fileID: 99126395598412650}
   - component: {fileID: 989355214875847465}
+  - component: {fileID: 8899323386000462369}
+  - component: {fileID: 7690852933368916032}
   m_Layer: 0
   m_Name: Backpack
   m_TagString: Untagged
@@ -206,5 +208,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26a4a630740d24b81960ec83431a2f49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8899323386000462369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6663524575875047314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98d763cf50b2a49fe90443394071e57c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7690852933368916032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6663524575875047314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611c574b6f7764d06b5c3cb45df03640, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

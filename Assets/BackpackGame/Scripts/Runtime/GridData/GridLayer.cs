@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="GridLayer.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
@@ -16,7 +16,7 @@ namespace AillieoTech.Game
         Backpack = 2,
         Item = 4,
         Slot = 8,
-        Diamond = 16,
+        Gem = 16,
         Shelf = 32,
     }
 }

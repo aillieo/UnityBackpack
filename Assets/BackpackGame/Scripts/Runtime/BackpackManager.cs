@@ -7,74 +7,218 @@
 namespace AillieoTech.Game
 {
     using AillieoUtils;
+    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using UnityEngine;
+    using UnityEngine.Assertions;
 
-    public class BackpackManager : SingletonMonoBehaviour<BackpackManager>
+    public class BackpackManager : Singleton<BackpackManager>
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void EnsureInstance()
+        private WallComp wallCompValue;
+        public WallComp wallComp
         {
-            var _ = BackpackManager.Instance;
-        }
-
-        public DraggableComp selectedDraggable;
-
-        public Camera currentCamera;
-
-        private MouseEvents mouseEventsValue;
-
-        public GridData wallGrids = new GridData(20, 10);
-        public Vector2Int wallGridsStart = new Vector2Int(-10, -5);
-
-        public Dictionary<Vector2Int, List<DraggableComp>> gridToItemLookup = new Dictionary<Vector2Int, List<DraggableComp>>();
-        public Dictionary<DraggableComp, Vector2Int> attachedItems = new Dictionary<DraggableComp, Vector2Int>();
-
-        private MouseEvents mouseEvents
-        {
-            get
+            get 
             {
-                if (this.mouseEventsValue == null)
+                if (wallCompValue == null)
                 {
-                    this.mouseEventsValue = this.gameObject.AddComponent<MouseEvents>();
+                    wallCompValue = UnityEngine.Object.FindObjectOfType<WallComp>();
                 }
 
-                return this.mouseEventsValue;
+                return wallCompValue;
             }
         }
 
-        public bool TryAttachItem(DraggableComp item)
+        public Transform wallNode => wallComp.transform;
+
+        public Dictionary<Vector2Int, BPContainerComp> gridToContainerLookup = new Dictionary<Vector2Int, BPContainerComp>();
+        public Dictionary<BPContainerComp, Vector2Int> attachedContainers = new Dictionary<BPContainerComp, Vector2Int>();
+
+        public Dictionary<Vector2Int, BPItemComp> gridToItemLookup = new Dictionary<Vector2Int, BPItemComp>();
+        public Dictionary<BPItemComp, Vector2Int> attachedItems = new Dictionary<BPItemComp, Vector2Int>();
+
+        public bool TryAttachContainer(BPContainerComp container)
         {
-            var gridPosition = GridUtils.WorldPositionToGridPositionLB(item.transform.position, item.gridData.GetShape());
-            var offset = gridPosition - wallGridsStart;
+            var containerGridData = container.gridData;
+            var wallGridData = wallComp.gridData;
 
-            if (GridUtils.CanHold(wallGrids, item.gridData, offset))
+            var containerMin = containerGridData.GetWorldGridStart();
+            var containerMax = containerMin + containerGridData.GetWorldShape();
+            var wallMin = wallGridData.GetWorldGridStart();
+            var wallMax = wallMin + wallGridData.GetWorldShape();
+
+            bool canHold = true;
+
+            for (var x = containerMin.x; x < containerMax.x; x++)
             {
-                GridUtils.Union(wallGrids, item.gridData, offset);
-
-                this.attachedItems.Add(item, gridPosition);
-
-                for (var x = 0; x < item.gridData.Width; x++)
+                for (var y = containerMin.y; y < containerMax.y; y++)
                 {
-                    for (var y = 0; y < item.gridData.Height; y++)
+                    if (containerGridData.GetWorldValue(new Vector2Int(x, y)) == 0)
                     {
-                        if (item.gridData[x, y] != 0)
-                        {
-                            var grid = gridPosition = new Vector2Int(x, y);
-                            var list = this.gridToItemLookup.GetOrAdd(grid, () => new List<DraggableComp>());
-                            list.Add(item);
-                        }
+                        continue;
+                    }
+
+                    if (x < wallMin.x || x >= wallMax.x || y < wallMin.y || y >= wallMax.y)
+                    {
+                        // 超出wall边界了
+                        canHold = false;
+                        break;
+                    }
+
+                    if ((wallGridData.GetWorldValue(new Vector2Int(x, y)) & GridLayer.Backpack) > 0)
+                    {
+                        // overlap
+                        canHold = false;
+                        break;
                     }
                 }
-
-                return true;
             }
 
-            return false;
+            if (!canHold)
+            {
+                return false;
+            }
+
+            for (var x = containerMin.x; x < containerMax.x; x++)
+            {
+                for (var y = containerMin.y; y < containerMax.y; y++)
+                {
+                    if (containerGridData.GetWorldValue(new Vector2Int(x, y)) == 0)
+                    {
+                        continue;
+                    }
+
+                    var worldGrid = new Vector2Int(x, y);
+                    var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
+                    wallGridData.gridData[wallLocal.x, wallLocal.y] |= GridLayer.Backpack;
+
+                    gridToContainerLookup[wallLocal] = container;
+                }
+            }
+
+            attachedContainers[container] = wallGridData.WorldGridToLocalGrid(containerMin);
+
+            return true;
         }
 
-        public bool DetachItem(DraggableComp item)
+        public bool TryAttachItem(BPItemComp item)
+        {
+            var itemGridData = item.gridData;
+            var wallGridData = wallComp.gridData;
+
+            var itemMin = itemGridData.GetWorldGridStart();
+            var itemMax = itemMin + itemGridData.GetWorldShape();
+            var wallMin = wallGridData.GetWorldGridStart();
+            var wallMax = wallMin + wallGridData.GetWorldShape();
+
+            bool canHold = true;
+
+            for (var x = itemMin.x; x < itemMax.x; x++)
+            {
+                for (var y = itemMin.y; y < itemMax.y; y++)
+                {
+                    if (itemGridData.GetWorldValue(new Vector2Int(x, y)) == 0)
+                    {
+                        continue;
+                    }
+
+                    if (x < wallMin.x || x >= wallMax.x || y < wallMin.y || y >= wallMax.y)
+                    {
+                        // 超出wall边界了
+                        canHold = false;
+                        break;
+                    }
+
+                    if ((wallGridData.GetWorldValue(new Vector2Int(x, y)) & GridLayer.Backpack) == 0)
+                    {
+                        // 没有背包
+                        canHold = false;
+                        break;
+                    }
+
+                    if ((wallGridData.GetWorldValue(new Vector2Int(x, y)) & GridLayer.Item) > 0)
+                    {
+                        // overlap
+                        canHold = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!canHold)
+            {
+                return false;
+            }
+
+            for (var x = itemMin.x; x < itemMax.x; x++)
+            {
+                for (var y = itemMin.y; y < itemMax.y; y++)
+                {
+                    if (itemGridData.GetWorldValue(new Vector2Int(x, y)) == 0)
+                    {
+                        continue;
+                    }
+
+                    var worldGrid = new Vector2Int(x, y);
+                    var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
+                    wallGridData.gridData[wallLocal.x, wallLocal.y] |= GridLayer.Item;
+
+                    gridToItemLookup[wallLocal] = item;
+                }
+            }
+
+            attachedItems[item] = wallGridData.WorldGridToLocalGrid(itemMin);
+
+            return true;
+        }
+
+        public bool DetachContainer(BPContainerComp container)
+        {
+            if (!this.attachedContainers.TryGetValue(container, out var gridLB))
+            {
+                return false;
+            }
+
+            Debug.Log("will detach " + container);
+
+            var containerGridData = container.gridData;
+            var wallGridData = wallComp.gridData;
+
+            var containerMin = containerGridData.GetWorldGridStart();
+            var containerMax = containerMin + containerGridData.GetWorldShape();
+            var wallMin = wallGridData.GetWorldGridStart();
+            var wallMax = wallMin + wallGridData.GetWorldShape();
+
+            for (var x = containerMin.x; x < containerMax.x; x++)
+            {
+                for (var y = containerMin.y; y < containerMax.y; y++)
+                {
+                    if (containerGridData.GetWorldValue(new Vector2Int(x, y)) == 0)
+                    {
+                        continue;
+                    }
+
+                    var worldGrid = new Vector2Int(x, y);
+                    var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
+
+                    // 检查是否有子物体 有的话 先detach
+                    if (gridToItemLookup.TryGetValue(wallLocal, out var item))
+                    {
+                        DetachItem(item);
+                        item.physicsComp.SwitchSimulation(true);
+                    }
+
+                    wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Backpack);
+
+                    Assert.IsTrue(gridToContainerLookup.Remove(wallLocal));
+                }
+            }
+
+            Assert.IsTrue(attachedContainers.Remove(container));
+
+            return true;
+        }
+
+        public bool DetachItem(BPItemComp item)
         {
             if (!this.attachedItems.TryGetValue(item, out var gridLB))
             {
@@ -83,173 +227,34 @@ namespace AillieoTech.Game
 
             Debug.Log("will detach " + item);
 
-            var gridPosition = GridUtils.WorldPositionToGridPositionLB(item.transform.position, item.gridData.GetShape());
-            var offset = gridPosition - wallGridsStart;
+            var itemGridData = item.gridData;
+            var wallGridData = wallComp.gridData;
 
-            GridUtils.Subtract(wallGrids, item.gridData, offset);
+            var itemMin = itemGridData.GetWorldGridStart();
+            var itemMax = itemMin + itemGridData.GetWorldShape();
+            var wallMin = wallGridData.GetWorldGridStart();
+            var wallMax = wallMin + wallGridData.GetWorldShape();
 
-            this.attachedItems.Remove(item);
-
-            for (var x = 0; x < item.gridData.Width; x++)
+            for (var x = itemMin.x; x < itemMax.x; x++)
             {
-                for (var y = 0; y < item.gridData.Height; y++)
+                for (var y = itemMin.y; y < itemMax.y; y++)
                 {
-                    if (item.gridData[x, y] != 0)
+                    if (itemGridData.GetWorldValue(new Vector2Int(x, y)) == 0)
                     {
-                        var grid = gridPosition = new Vector2Int(x, y);
-                        var list = this.gridToItemLookup.GetOrAdd(grid, () => new List<DraggableComp>());
-
-                        var index = list.IndexOf(item);
-                        if (index >= 0)
-                        {
-                            // 需要移除 index 后边的
-                            for (int i = list.Count - 1; i > index; i--)
-                            {
-                                var item2 = list[i];
-                                DetachItem(item2);
-                                item2.SwitchSimulation(true);
-                            }
-                        }
+                        continue;
                     }
+
+                    var worldGrid = new Vector2Int(x, y);
+                    var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
+                    wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Item);
+
+                    Assert.IsTrue(gridToItemLookup.Remove(wallLocal));
                 }
             }
+
+            Assert.IsTrue(attachedItems.Remove(item));
 
             return true;
-        }
-
-        protected override void Awake()
-        {
-            base.Awake();
-
-            // 初始化墙体
-            for (var x = 0; x < this.wallGrids.Width; x++)
-            {
-                for (var y = 0; y < this.wallGrids.Height; y++)
-                {
-                    this.wallGrids[x, y] = GridLayer.Wall;
-                }
-            }
-        }
-
-        private void OnEnable()
-        {
-            this.currentCamera = Camera.main;
-
-            this.mouseEvents.OnMouseDragStart += this.OnDragStart;
-            this.mouseEvents.OnMouseDrag += this.OnDrag;
-            this.mouseEvents.OnMouseDragEnd += this.OnDragEnd;
-            this.mouseEvents.OnRightMouseClick += this.OnRightMouseClick;
-        }
-
-        private void OnDisable()
-        {
-            this.mouseEvents.OnMouseDragStart -= this.OnDragStart;
-            this.mouseEvents.OnMouseDrag -= this.OnDrag;
-            this.mouseEvents.OnMouseDragEnd -= this.OnDragEnd;
-            this.mouseEvents.OnRightMouseClick -= this.OnRightMouseClick;
-        }
-
-        private Collider2D[] raycastHits = new Collider2D[16];
-
-        public DraggableComp FindDraggable(Vector2 screenPosition)
-        {
-            var worldPoint = this.currentCamera.ScreenToWorldPoint(screenPosition);
-            var result = Physics2D.OverlapPointNonAlloc(worldPoint, this.raycastHits, -1, -100, 100);
-            UnityEngine.Debug.Log("result = " + result);
-            if (result > 0)
-            {
-                // 处理击中物体的逻辑
-                for (var i = 0; i < result; i++)
-                {
-                    var collider = this.raycastHits[i];
-                    if (collider != null)
-                    {
-                        var go = collider.gameObject;
-                        if (go.TryGetComponent<DraggableComp>(out var draggable))
-                        {
-                            UnityEngine.Debug.Log("draggable = " + draggable);
-                            return draggable;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private void OnDragStart(Vector3 screenPosition)
-        {
-            var draggable = this.FindDraggable(screenPosition);
-            if (draggable != null)
-            {
-                this.selectedDraggable = draggable;
-                draggable.OnDragStart(screenPosition);
-            }
-        }
-
-        private void OnDrag(Vector3 screenPosition)
-        {
-            if (this.selectedDraggable != null)
-            {
-                this.selectedDraggable.OnDrag(screenPosition);
-            }
-        }
-
-        private void OnDragEnd(Vector3 screenPosition)
-        {
-            if (this.selectedDraggable != null)
-            {
-                this.selectedDraggable.OnDragEnd(screenPosition);
-            }
-
-            this.selectedDraggable = null;
-        }
-
-        private void OnDrawGizmos()
-        {
-            // 绘制wallGrids
-            for (var x = 0; x < this.wallGrids.Width; x++)
-            {
-                for (var y = 0; y < this.wallGrids.Height; y++)
-                {
-                    var value = this.wallGrids[x, y];
-                    if (value != 0)
-                    {
-                        var worldPosition =
-                            GridUtils.GridPositionToWorldPosition(new Vector2Int(x, y) + this.wallGridsStart);
-
-                        if (value == GridLayer.Wall)
-                        {
-                            Gizmos.DrawWireCube(worldPosition, Vector3.one * 0.5f);
-                        }
-                        else
-                        {
-                            var backup = Gizmos.color;
-                            if ((value & GridLayer.Backpack) != 0)
-                            {
-                                Gizmos.color = Color.green;
-                                Gizmos.DrawCube(worldPosition, Vector3.one * 0.5f);
-                            }
-
-                            if ((value & GridLayer.Item) != 0)
-                            {
-                                Gizmos.color = Color.red;
-                                Gizmos.DrawCube(worldPosition, Vector3.one * 0.25f);
-                            }
-
-                            Gizmos.color = backup;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void OnRightMouseClick(Vector3 screenPosition)
-        {
-            if (this.selectedDraggable != null)
-            {
-                this.selectedDraggable.OnRotateRequest();
-            }
         }
     }
 }
