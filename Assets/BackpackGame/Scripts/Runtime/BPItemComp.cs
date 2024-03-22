@@ -1,8 +1,12 @@
+// -----------------------------------------------------------------------
+// <copyright file="BPItemComp.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
-    using System.Collections.Generic;
     using UnityEngine;
-    using UnityEngine.Assertions;
 
     [RequireComponent(typeof(Physics2DComp))]
     [RequireComponent(typeof(GridDataComp))]
@@ -17,12 +21,12 @@ namespace AillieoTech.Game
         {
             get
             {
-                if (physicsCompValue == null)
+                if (this.physicsCompValue == null)
                 {
-                    physicsCompValue = this.gameObject.GetComponent<Physics2DComp>();
+                    this.physicsCompValue = this.gameObject.GetComponent<Physics2DComp>();
                 }
 
-                return physicsCompValue;
+                return this.physicsCompValue;
             }
         }
 
@@ -32,12 +36,12 @@ namespace AillieoTech.Game
         {
             get
             {
-                if (gridDataValue == null)
+                if (this.gridDataValue == null)
                 {
-                    gridDataValue = this.gameObject.GetComponent<GridDataComp>();
+                    this.gridDataValue = this.gameObject.GetComponent<GridDataComp>();
                 }
 
-                return gridDataValue;
+                return this.gridDataValue;
             }
         }
 
@@ -47,26 +51,27 @@ namespace AillieoTech.Game
         {
             get
             {
-                if (rotateCompValue == null)
+                if (this.rotateCompValue == null)
                 {
-                    rotateCompValue = this.gameObject.GetComponent<RotateComp>();
+                    this.rotateCompValue = this.gameObject.GetComponent<RotateComp>();
                 }
 
-                return rotateCompValue;
+                return this.rotateCompValue;
             }
         }
 
         private DraggableComp draggableCompValue;
+
         private DraggableComp draggableComp
         {
             get
             {
-                if (draggableCompValue == null)
+                if (this.draggableCompValue == null)
                 {
-                    draggableCompValue = this.gameObject.GetComponent<DraggableComp>();
+                    this.draggableCompValue = this.gameObject.GetComponent<DraggableComp>();
                 }
 
-                return draggableCompValue;
+                return this.draggableCompValue;
             }
         }
 
@@ -96,6 +101,8 @@ namespace AillieoTech.Game
             {
                 this.physicsComp.SwitchSimulation(true);
             }
+
+            BackpackManager.Instance.wallComp.SetRenererVisible(false);
         }
 
         public void OnDragStart(MouseEventData eventData)
@@ -110,6 +117,8 @@ namespace AillieoTech.Game
             {
                 //this.rotateComp.FixRotation();
             }
+
+            BackpackManager.Instance.wallComp.SetRenererVisible(true);
         }
 
         private void OnRotationIndexChanged()

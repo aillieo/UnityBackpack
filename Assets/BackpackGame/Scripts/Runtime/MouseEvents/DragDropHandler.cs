@@ -7,9 +7,6 @@
 namespace AillieoTech.Game
 {
     using AillieoUtils;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using UnityEngine;
 
     public class DragDropHandler : SingletonMonoBehaviour<DragDropHandler>
@@ -87,6 +84,7 @@ namespace AillieoTech.Game
             {
                 var draggable = this.current.draggable;
                 var droppable = GameUtils.SelectComponent<DroppableComp>(screenPosition, this.currentCamera);
+                UnityEngine.Debug.Log("droppable = " + droppable);
                 if (droppable != null)
                 {
                     this.current.droppable = droppable;
@@ -105,7 +103,7 @@ namespace AillieoTech.Game
 
             if (this.current.draggable != null)
             {
-                if (current.draggable.gameObject.TryGetComponent<RotateComp>(out var rotate))
+                if (this.current.draggable.gameObject.TryGetComponent<RotateComp>(out var rotate))
                 {
                     rotate.Rotate();
                 }

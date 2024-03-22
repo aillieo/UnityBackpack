@@ -1,6 +1,11 @@
+// -----------------------------------------------------------------------
+// <copyright file="GameObjectExtensions.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
-    using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
 

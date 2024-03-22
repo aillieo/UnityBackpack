@@ -32,7 +32,7 @@ namespace AillieoTech.Game
 
         public Vector2Int GetWorldGridStart()
         {
-            var shape = GetWorldShape();
+            var shape = this.GetWorldShape();
 
             var rangeX = shape.x * GridUtils.gridSize;
             var rangeY = shape.y * GridUtils.gridSize;
@@ -45,7 +45,7 @@ namespace AillieoTech.Game
 
         public GridLayer GetWorldValue(Vector2Int worldGrid, GridLayer valueOutOfRange = default)
         {
-            var localGrid = WorldGridToLocalGrid(worldGrid);
+            var localGrid = this.WorldGridToLocalGrid(worldGrid);
 
             if (localGrid.x >= 0 && localGrid.x < this.gridData.Width && localGrid.y >= 0 && localGrid.y < this.gridData.Height)
             {
@@ -59,14 +59,14 @@ namespace AillieoTech.Game
 
         public Vector2Int WorldGridToLocalGrid(Vector2Int worldGrid)
         {
-            var offset = GetWorldGridStart();
+            var offset = this.GetWorldGridStart();
             var rotationIndex = GridUtils.AngleToRotationIndex(this.transform.eulerAngles.z);
 
             var width = this.grids.Width;
             var height = this.grids.Height;
 
-            int tempX = worldGrid.x - offset.x;
-            int tempY = worldGrid.y - offset.y;
+            var tempX = worldGrid.x - offset.x;
+            var tempY = worldGrid.y - offset.y;
 
             int localX;
             int localY;
@@ -121,13 +121,13 @@ namespace AillieoTech.Game
                             if ((value & GridLayer.Backpack) != 0)
                             {
                                 Gizmos.color = Color.green;
-                                Gizmos.DrawCube(worldPosition, Vector3.one * 0.5f);
+                                Gizmos.DrawCube(worldPosition, Vector3.one * 0.85f);
                             }
 
                             if ((value & GridLayer.Item) != 0)
                             {
                                 Gizmos.color = Color.red;
-                                Gizmos.DrawCube(worldPosition, Vector3.one * 0.25f);
+                                Gizmos.DrawCube(worldPosition, Vector3.one * 0.9f);
                             }
 
                             Gizmos.color = backup;

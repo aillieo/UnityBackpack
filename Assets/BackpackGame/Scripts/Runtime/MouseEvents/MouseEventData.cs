@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="MouseEventData.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
     using UnityEngine;

@@ -17,7 +17,7 @@ namespace AillieoTech.Game
 
         public void HandleDrop(MouseEventData eventData)
         {
-            OnDrop?.Invoke(eventData);
+            this.OnDrop?.Invoke(eventData);
         }
     }
 }

@@ -1,3 +1,8 @@
+// -----------------------------------------------------------------------
+// <copyright file="MouseEvents.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace AillieoTech.Game
 {
@@ -35,69 +40,69 @@ namespace AillieoTech.Game
             // 鼠标左键
             if (Input.GetMouseButtonDown(0))
             {
-                leftMouseDownPosition = Input.mousePosition;
-                lastMousePosition = Input.mousePosition;
-                leftMouseDownTime = Time.time;
-                OnMouseDown?.Invoke(Input.mousePosition);
+                this.leftMouseDownPosition = Input.mousePosition;
+                this.lastMousePosition = Input.mousePosition;
+                this.leftMouseDownTime = Time.time;
+                this.OnMouseDown?.Invoke(Input.mousePosition);
             }
 
             if (Input.GetMouseButton(0))
             {
-                if (!isDragging)
+                if (!this.isDragging)
                 {
-                    var distance = Vector3.Distance(leftMouseDownPosition, Input.mousePosition);
+                    var distance = Vector3.Distance(this.leftMouseDownPosition, Input.mousePosition);
                     if (distance > dragThreshold)
                     {
-                        isDragging = true;
-                        OnMouseDragStart?.Invoke(Input.mousePosition);
+                        this.isDragging = true;
+                        this.OnMouseDragStart?.Invoke(Input.mousePosition);
                     }
                 }
                 else
                 {
-                    var distance = Vector3.Distance(lastMousePosition, Input.mousePosition);
+                    var distance = Vector3.Distance(this.lastMousePosition, Input.mousePosition);
                     if (distance > Vector3.kEpsilon)
                     {
-                        OnMouseDrag?.Invoke(Input.mousePosition);
+                        this.OnMouseDrag?.Invoke(Input.mousePosition);
                     }
                 }
 
-                lastMousePosition = Input.mousePosition;
+                this.lastMousePosition = Input.mousePosition;
             }
 
             if (Input.GetMouseButtonUp(0))
             {
-                if (isDragging)
+                if (this.isDragging)
                 {
-                    OnMouseDragEnd?.Invoke(Input.mousePosition);
+                    this.OnMouseDragEnd?.Invoke(Input.mousePosition);
                 }
                 else
                 {
-                    var pressedTime = Time.time - leftMouseDownTime;
+                    var pressedTime = Time.time - this.leftMouseDownTime;
                     if (pressedTime < clickThreshold)
                     {
-                        OnMouseClick?.Invoke(Input.mousePosition);
+                        this.OnMouseClick?.Invoke(Input.mousePosition);
                     }
                 }
 
-                isDragging = false;
+                this.isDragging = false;
                 this.OnMouseUp?.Invoke(Input.mousePosition);
             }
 
             // 鼠标右键
             if (Input.GetMouseButtonDown(1))
             {
-                rightMouseDownPosition = Input.mousePosition;
-                rightMouseDownTime = Time.time;
+                this.rightMouseDownPosition = Input.mousePosition;
+                this.rightMouseDownTime = Time.time;
             }
-            
+
             if (Input.GetMouseButtonUp(1))
             {
-                var pressedTime = Time.time - rightMouseDownTime;
-                var distance = Vector3.Distance(rightMouseDownPosition, Input.mousePosition);
+                var pressedTime = Time.time - this.rightMouseDownTime;
+                var distance = Vector3.Distance(this.rightMouseDownPosition, Input.mousePosition);
                 UnityEngine.Debug.Log($"pressedTime < clickThreshold = {pressedTime < clickThreshold} distance < dragThreshold = {distance < dragThreshold}");
                 if (pressedTime < clickThreshold && distance < dragThreshold)
                 {
-                    OnRightMouseClick?.Invoke(Input.mousePosition);
+                    this.OnRightMouseClick?.Invoke(Input.mousePosition);
                 }
             }
         }

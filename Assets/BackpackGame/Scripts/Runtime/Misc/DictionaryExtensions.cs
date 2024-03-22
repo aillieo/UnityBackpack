@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------
-// <copyright file="GridUtils.cs" company="AillieoTech">
+// <copyright file="DictionaryExtensions.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -8,7 +8,6 @@ namespace AillieoTech.Game
 {
     using System;
     using System.Collections.Generic;
-    using UnityEngine;
 
     public static class DictionaryExtensions
     {

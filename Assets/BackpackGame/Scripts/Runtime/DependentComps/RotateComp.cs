@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="RotateComp.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
     using System;
@@ -8,9 +14,10 @@ namespace AillieoTech.Game
     public class RotateComp : MonoBehaviour
     {
         public event Action OnRotationIndexChanged;
+
         public event Action OnDidRotate;
 
-        private bool isRotating = false;
+        private Coroutine coroutine;
         private float targetRotation = 0f;
         private float rotationSpeedFactor = 2.4f;
 
@@ -18,21 +25,24 @@ namespace AillieoTech.Game
 
         public int currentRotationIndex
         {
-            get { return currentRotationIndexValue; }
+            get
+            {
+                return this.currentRotationIndexValue;
+            }
 
             private set
             {
-                if (currentRotationIndexValue != value)
+                if (this.currentRotationIndexValue != value)
                 {
-                    currentRotationIndexValue = value;
-                    OnRotationIndexChanged?.Invoke();
+                    this.currentRotationIndexValue = value;
+                    this.OnRotationIndexChanged?.Invoke();
                 }
             }
         }
 
         public void Rotate()
         {
-            if (isRotating)
+            if (this.coroutine != null)
             {
                 return;
             }
@@ -41,56 +51,48 @@ namespace AillieoTech.Game
             var rotationIndex = GridUtils.AngleToRotationIndex(this.transform.eulerAngles.z);
             rotationIndex = rotationIndex + 1;
             rotationIndex = rotationIndex % 4;
-            targetRotation = GridUtils.RotationIndexToAngle(rotationIndex);
+            this.targetRotation = GridUtils.RotationIndexToAngle(rotationIndex);
 
             // 启动旋转协程
-            StartCoroutine(RotateCoroutine());
+            this.coroutine = this.StartCoroutine(this.RotateCoroutine());
         }
 
         public void FixRotation()
         {
-            if (isRotating)
+            if (this.coroutine != null)
             {
                 return;
             }
 
             // 设置旋转相关参数
             var eulerAngles = GridUtils.SnapAngle(this.transform.eulerAngles);
-            targetRotation = eulerAngles.z;
+            this.targetRotation = eulerAngles.z;
 
             // 启动旋转协程
-            StartCoroutine(RotateCoroutine());
+            this.coroutine = this.StartCoroutine(this.RotateCoroutine());
         }
 
         private IEnumerator RotateCoroutine()
         {
-            isRotating = true;
-            float startRotation = transform.eulerAngles.z;
-            float rotateRatio = 0f;
+            var startRotation = this.transform.eulerAngles.z;
+            var rotateRatio = 0f;
 
             while (rotateRatio < 1f)
             {
                 // 计算当前的旋转角度
-                float currentRotation = Mathf.LerpAngle(startRotation, targetRotation, rotateRatio);
-                transform.eulerAngles = new Vector3(0f, 0f, currentRotation);
+                var currentRotation = Mathf.LerpAngle(startRotation, this.targetRotation, rotateRatio);
+                this.transform.eulerAngles = new Vector3(0f, 0f, currentRotation);
 
-                RecalculateRotationIndex();
-                
                 // 更新计时器
-                rotateRatio += Time.deltaTime * rotationSpeedFactor;
+                rotateRatio += Time.deltaTime * this.rotationSpeedFactor;
 
                 yield return null;
             }
 
-            transform.eulerAngles = new Vector3(0f, 0f, targetRotation);
+            this.transform.eulerAngles = new Vector3(0f, 0f, this.targetRotation);
 
-            this.isRotating = false;
+            this.coroutine = null;
             this.OnDidRotate?.Invoke();
-        }
-
-        public void RecalculateRotationIndex()
-        {
-            this.currentRotationIndex = GridUtils.AngleToRotationIndex(this.transform.eulerAngles.z);
         }
     }
 }

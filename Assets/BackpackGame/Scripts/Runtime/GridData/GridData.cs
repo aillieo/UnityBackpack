@@ -1,8 +1,13 @@
+// -----------------------------------------------------------------------
+// <copyright file="GridData.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
     using System;
     using System.Text;
-    using UnityEngine;
 
     [Serializable]
     public class GridData : BaseGridData<GridLayer>
@@ -14,7 +19,7 @@ namespace AillieoTech.Game
 
         public override string ToString()
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
 
             var width = this.Width;
             var height = this.Height;

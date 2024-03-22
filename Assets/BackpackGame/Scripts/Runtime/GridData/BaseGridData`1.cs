@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="BaseGridData`1.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
     using System;
@@ -8,6 +14,11 @@ namespace AillieoTech.Game
     [Serializable]
     public class BaseGridData<T> : IEnumerable<KeyValuePair<Vector2Int, T>>
     {
+        public BaseGridData()
+            : this(1, 1)
+        {
+        }
+
         public BaseGridData(int width, int height)
         {
             this.width = width;
@@ -22,18 +33,18 @@ namespace AillieoTech.Game
 
         public int Width
         {
-            get => width;
+            get => this.width;
         }
 
         public int Height
         {
-            get => data.Length / width;
+            get => this.width > 0 ? this.data.Length / this.width : 0;
         }
 
         public T this[int x, int y]
         {
-            get => data[x + y * width];
-            set => data[x + y * width] = value;
+            get => this.data[x + (y * this.width)];
+            set => this.data[x + (y * this.width)] = value;
         }
 
         public void Operate(BaseGridData<T> other, Vector2Int offset, Func<T, T, T> operation, T valueOutOfRange)

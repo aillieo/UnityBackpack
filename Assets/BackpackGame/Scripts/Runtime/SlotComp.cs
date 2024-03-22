@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------
-// <copyright file="SellBoxComp.cs" company="AillieoTech">
+// <copyright file="SlotComp.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -10,10 +10,9 @@ namespace AillieoTech.Game
 
     [RequireComponent(typeof(DroppableComp))]
     [DisallowMultipleComponent]
-    public class SellBoxComp : MonoBehaviour
+    public class SlotComp : MonoBehaviour
     {
         private DroppableComp droppableCompValue;
-
         private DroppableComp droppableComp
         {
             get
@@ -39,10 +38,6 @@ namespace AillieoTech.Game
 
         private void OnDrop(MouseEventData eventData)
         {
-            if (eventData.draggable != null)
-            {
-                GameObject.Destroy(eventData.draggable.gameObject);
-            }
         }
     }
 }

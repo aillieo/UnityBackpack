@@ -1,12 +1,15 @@
+// -----------------------------------------------------------------------
+// <copyright file="WallComp.cs" company="AillieoTech">
+// Copyright (c) AillieoTech. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace AillieoTech.Game
 {
     using System.Collections;
-    using System.Collections.Generic;
     using UnityEngine;
-    using UnityEngine.Assertions;
 
     [RequireComponent(typeof(GridDataComp))]
-    [RequireComponent(typeof(DroppableComp))]
     [DisallowMultipleComponent]
     public class WallComp : MonoBehaviour
     {
@@ -16,13 +19,18 @@ namespace AillieoTech.Game
         {
             get
             {
-                if (gridDataValue == null)
+                if (this.gridDataValue == null)
                 {
-                    gridDataValue = this.gameObject.GetComponent<GridDataComp>();
+                    this.gridDataValue = this.gameObject.GetComponent<GridDataComp>();
                 }
 
-                return gridDataValue;
+                return this.gridDataValue;
             }
+        }
+
+        private void OnEnable()
+        {
+            this.SetRenererVisible(false);
         }
 
         private void OnDrawGizmos()
@@ -37,15 +45,44 @@ namespace AillieoTech.Game
                 {
                     var worldGrid = start + new Vector2Int(x, y);
                     var worldPosition = GridUtils.GridPositionToWorldPosition(worldGrid);
- 
-#if UNITY_EDITOR
-                    //if (this.gridToItemLookup.TryGetValue(new Vector2Int(x, y), out var list))
-                    //{
-                    //    UnityEditor.Handles.Label(worldPosition, $"{list.Count}");
-                    //}
-#endif
                 }
             }
+        }
+
+        [SerializeField]
+        private Renderer wallRenderer;
+
+        private Coroutine coroutine;
+
+        public void SetRenererVisible(bool visible)
+        {
+            if (this.wallRenderer == null)
+            {
+                return;
+            }
+
+            if (this.coroutine != null)
+            {
+                this.StopCoroutine(this.coroutine);
+                this.coroutine = null;
+            }
+
+            this.coroutine = this.StartCoroutine(this.SetRendererAlpha(visible ? 1 : 0));
+        }
+
+        private IEnumerator SetRendererAlpha(float alpha)
+        {
+            var currentAlpha = this.wallRenderer.material.color.a;
+            while (Mathf.Abs(currentAlpha - alpha) > 0.01f)
+            {
+                currentAlpha = Mathf.Lerp(currentAlpha, alpha, Time.deltaTime * 10);
+                var color = this.wallRenderer.material.color;
+                color.a = currentAlpha;
+                this.wallRenderer.material.color = color;
+                yield return null;
+            }
+
+            this.coroutine = null;
         }
     }
 }

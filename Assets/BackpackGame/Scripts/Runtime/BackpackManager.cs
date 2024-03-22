@@ -6,47 +6,48 @@
 
 namespace AillieoTech.Game
 {
-    using AillieoUtils;
     using System;
     using System.Collections.Generic;
+    using AillieoUtils;
     using UnityEngine;
     using UnityEngine.Assertions;
 
     public class BackpackManager : Singleton<BackpackManager>
     {
         private WallComp wallCompValue;
+
         public WallComp wallComp
         {
-            get 
+            get
             {
-                if (wallCompValue == null)
+                if (this.wallCompValue == null)
                 {
-                    wallCompValue = UnityEngine.Object.FindObjectOfType<WallComp>();
+                    this.wallCompValue = UnityEngine.Object.FindObjectOfType<WallComp>();
                 }
 
-                return wallCompValue;
+                return this.wallCompValue;
             }
         }
 
-        public Transform wallNode => wallComp.transform;
+        public Transform wallNode => this.wallComp.transform;
 
-        public Dictionary<Vector2Int, BPContainerComp> gridToContainerLookup = new Dictionary<Vector2Int, BPContainerComp>();
-        public Dictionary<BPContainerComp, Vector2Int> attachedContainers = new Dictionary<BPContainerComp, Vector2Int>();
+        public readonly Dictionary<Vector2Int, BPContainerComp> gridToContainerLookup = new Dictionary<Vector2Int, BPContainerComp>();
+        public readonly Dictionary<BPContainerComp, Vector2Int> attachedContainers = new Dictionary<BPContainerComp, Vector2Int>();
 
-        public Dictionary<Vector2Int, BPItemComp> gridToItemLookup = new Dictionary<Vector2Int, BPItemComp>();
-        public Dictionary<BPItemComp, Vector2Int> attachedItems = new Dictionary<BPItemComp, Vector2Int>();
+        public readonly Dictionary<Vector2Int, BPItemComp> gridToItemLookup = new Dictionary<Vector2Int, BPItemComp>();
+        public readonly Dictionary<BPItemComp, Vector2Int> attachedItems = new Dictionary<BPItemComp, Vector2Int>();
 
         public bool TryAttachContainer(BPContainerComp container)
         {
             var containerGridData = container.gridData;
-            var wallGridData = wallComp.gridData;
+            var wallGridData = this.wallComp.gridData;
 
             var containerMin = containerGridData.GetWorldGridStart();
             var containerMax = containerMin + containerGridData.GetWorldShape();
             var wallMin = wallGridData.GetWorldGridStart();
             var wallMax = wallMin + wallGridData.GetWorldShape();
 
-            bool canHold = true;
+            var canHold = true;
 
             for (var x = containerMin.x; x < containerMax.x; x++)
             {
@@ -91,11 +92,11 @@ namespace AillieoTech.Game
                     var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
                     wallGridData.gridData[wallLocal.x, wallLocal.y] |= GridLayer.Backpack;
 
-                    gridToContainerLookup[wallLocal] = container;
+                    this.gridToContainerLookup[wallLocal] = container;
                 }
             }
 
-            attachedContainers[container] = wallGridData.WorldGridToLocalGrid(containerMin);
+            this.attachedContainers[container] = wallGridData.WorldGridToLocalGrid(containerMin);
 
             return true;
         }
@@ -103,14 +104,14 @@ namespace AillieoTech.Game
         public bool TryAttachItem(BPItemComp item)
         {
             var itemGridData = item.gridData;
-            var wallGridData = wallComp.gridData;
+            var wallGridData = this.wallComp.gridData;
 
             var itemMin = itemGridData.GetWorldGridStart();
             var itemMax = itemMin + itemGridData.GetWorldShape();
             var wallMin = wallGridData.GetWorldGridStart();
             var wallMax = wallMin + wallGridData.GetWorldShape();
 
-            bool canHold = true;
+            var canHold = true;
 
             for (var x = itemMin.x; x < itemMax.x; x++)
             {
@@ -162,11 +163,11 @@ namespace AillieoTech.Game
                     var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
                     wallGridData.gridData[wallLocal.x, wallLocal.y] |= GridLayer.Item;
 
-                    gridToItemLookup[wallLocal] = item;
+                    this.gridToItemLookup[wallLocal] = item;
                 }
             }
 
-            attachedItems[item] = wallGridData.WorldGridToLocalGrid(itemMin);
+            this.attachedItems[item] = wallGridData.WorldGridToLocalGrid(itemMin);
 
             return true;
         }
@@ -181,7 +182,7 @@ namespace AillieoTech.Game
             Debug.Log("will detach " + container);
 
             var containerGridData = container.gridData;
-            var wallGridData = wallComp.gridData;
+            var wallGridData = this.wallComp.gridData;
 
             var containerMin = containerGridData.GetWorldGridStart();
             var containerMax = containerMin + containerGridData.GetWorldShape();
@@ -209,11 +210,11 @@ namespace AillieoTech.Game
 
                     wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Backpack);
 
-                    Assert.IsTrue(gridToContainerLookup.Remove(wallLocal));
+                    Assert.IsTrue(this.gridToContainerLookup.Remove(wallLocal));
                 }
             }
 
-            Assert.IsTrue(attachedContainers.Remove(container));
+            Assert.IsTrue(this.attachedContainers.Remove(container));
 
             return true;
         }
@@ -228,7 +229,7 @@ namespace AillieoTech.Game
             Debug.Log("will detach " + item);
 
             var itemGridData = item.gridData;
-            var wallGridData = wallComp.gridData;
+            var wallGridData = this.wallComp.gridData;
 
             var itemMin = itemGridData.GetWorldGridStart();
             var itemMax = itemMin + itemGridData.GetWorldShape();
@@ -248,12 +249,53 @@ namespace AillieoTech.Game
                     var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
                     wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Item);
 
-                    Assert.IsTrue(gridToItemLookup.Remove(wallLocal));
+                    Assert.IsTrue(this.gridToItemLookup.Remove(wallLocal));
                 }
             }
 
-            Assert.IsTrue(attachedItems.Remove(item));
+            Assert.IsTrue(this.attachedItems.Remove(item));
 
+            return true;
+        }
+
+        public bool TryAttachGem(GemComp gem, SlotComp slot)
+        {
+            var item = slot.GetComponentInParent<BPItemComp>();
+            if (item == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (!this.attachedItems.TryGetValue(item, out var lb))
+            {
+                // 自由状态的item 不允许安装gem
+                return false;
+            }
+
+            var oldGem = new List<GemComp>();
+            slot.gameObject.GetDirectChildrenComponents(oldGem);
+            if (oldGem.Count > 0)
+            {
+                // 已经安装的有宝石了
+                return false;
+            }
+
+            gem.transform.SetParent(slot.transform, false);
+            gem.transform.localPosition = Vector3.zero;
+            gem.transform.localEulerAngles = Vector3.zero;
+            return true;
+        }
+
+        public bool DettachGem(GemComp gem)
+        {
+            var slot = gem.GetComponentInParent<SlotComp>();
+            if (slot == null)
+            {
+                return false;
+            }
+
+            gem.transform.SetParent(this.wallNode, true);
+            gem.physicsComp.SwitchSimulation(true);
             return true;
         }
     }

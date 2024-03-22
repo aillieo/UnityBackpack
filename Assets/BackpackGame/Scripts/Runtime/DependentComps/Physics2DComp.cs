@@ -19,12 +19,12 @@ namespace AillieoTech.Game
         {
             get
             {
-                if (colliderValue == null)
+                if (this.colliderValue == null)
                 {
-                    colliderValue = this.gameObject.GetComponent<Collider2D>();
+                    this.colliderValue = this.gameObject.GetComponent<Collider2D>();
                 }
 
-                return colliderValue;
+                return this.colliderValue;
             }
         }
 
@@ -34,12 +34,12 @@ namespace AillieoTech.Game
         {
             get
             {
-                if (rigidbodyValue == null)
+                if (this.rigidbodyValue == null)
                 {
-                    rigidbodyValue = this.gameObject.GetComponent<Rigidbody2D>();
+                    this.rigidbodyValue = this.gameObject.GetComponent<Rigidbody2D>();
                 }
 
-                return rigidbodyValue;
+                return this.rigidbodyValue;
             }
         }
 
