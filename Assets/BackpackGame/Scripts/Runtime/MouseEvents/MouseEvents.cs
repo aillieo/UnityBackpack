@@ -33,7 +33,7 @@ namespace AillieoTech.Game
         private float rightMouseDownTime;
 
         private const float dragThreshold = 10;
-        private const float clickThreshold = 0.1f;
+        private const float clickThreshold = 1.6f;
 
         private void Update()
         {

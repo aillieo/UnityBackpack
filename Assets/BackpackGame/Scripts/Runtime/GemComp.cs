@@ -58,6 +58,9 @@ namespace AillieoTech.Game
         private void OnDragStart(MouseEventData eventData)
         {
             this.physicsComp.SwitchSimulation(false);
+            BackpackManager.Instance.DettachGem(this);
+
+            BackpackManager.Instance.RequestChangeSlotVisibility(true);
         }
 
         private void OnDragEnd(MouseEventData eventData)
@@ -76,6 +79,8 @@ namespace AillieoTech.Game
             {
                 this.physicsComp.SwitchSimulation(true);
             }
+
+            BackpackManager.Instance.RequestChangeSlotVisibility(false);
         }
     }
 }

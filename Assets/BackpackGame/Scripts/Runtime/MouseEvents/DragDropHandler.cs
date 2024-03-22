@@ -95,6 +95,7 @@ namespace AillieoTech.Game
             }
 
             this.current.draggable = null;
+            this.current.droppable = null;
         }
 
         private void OnRightMouseClick(Vector3 screenPosition)

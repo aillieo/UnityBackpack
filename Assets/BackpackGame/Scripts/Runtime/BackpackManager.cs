@@ -14,6 +14,8 @@ namespace AillieoTech.Game
 
     public class BackpackManager : Singleton<BackpackManager>
     {
+        public event Action<bool> OnChangeSlotVisibilityRequested;
+
         private WallComp wallCompValue;
 
         public WallComp wallComp
@@ -295,8 +297,12 @@ namespace AillieoTech.Game
             }
 
             gem.transform.SetParent(this.wallNode, true);
-            gem.physicsComp.SwitchSimulation(true);
             return true;
+        }
+
+        public void RequestChangeSlotVisibility(bool visible)
+        {
+            this.OnChangeSlotVisibilityRequested?.Invoke(visible);
         }
     }
 }
