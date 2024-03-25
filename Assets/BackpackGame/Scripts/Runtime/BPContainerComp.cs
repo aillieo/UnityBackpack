@@ -80,14 +80,12 @@ namespace AillieoTech.Game
         {
             this.draggableComp.OnDragBegin += this.OnDragStart;
             this.draggableComp.OnDragEnd += this.OnDragEnd;
-            this.rotateComp.OnRotationIndexChanged += this.OnRotationIndexChanged;
         }
 
         private void OnDisable()
         {
             this.draggableComp.OnDragBegin -= this.OnDragStart;
             this.draggableComp.OnDragEnd -= this.OnDragEnd;
-            this.rotateComp.OnRotationIndexChanged -= this.OnRotationIndexChanged;
         }
 
         public void OnDragEnd(MouseEventData eventData)
@@ -156,23 +154,9 @@ namespace AillieoTech.Game
             var detached = BackpackManager.Instance.DetachContainer(this);
             if (!detached)
             {
-                //this.rotateComp.FixRotation();
             }
 
             BackpackManager.Instance.wallComp.SetRenererVisible(true);
-        }
-
-        private void OnRotationIndexChanged()
-        {
-            UnityEngine.Debug.Log("OnRotationIndexChanged: " + this.name);
-
-            // 处理子节点
-            //var list = new List<BPItemComp>();
-            //this.gameObject.GetDirectChildrenComponents(list);
-            //foreach (var childComp in list)
-            //{
-            //    childComp.rotateComp.RecalculateRotationIndex();
-            //}
         }
     }
 }

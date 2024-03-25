@@ -6,11 +6,31 @@
 
 namespace AillieoTech.Game
 {
-    using AillieoUtils;
     using UnityEngine;
 
-    public class DragDropHandler : SingletonMonoBehaviour<DragDropHandler>
+#if AILLIEO_UNITY_SINGLETON
+    public class DragDropHandler : AillieoUtils.SingletonMonoBehaviour<DragDropHandler>
     {
+#else
+    public class DragDropHandler : MonoBehaviour
+    {
+        private static DragDropHandler instance;
+
+        public static DragDropHandler Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    var go = new GameObject($"[{nameof(DragDropHandler)}]");
+                    instance = go.AddComponent<DragDropHandler>();
+                }
+
+                return instance;
+            }
+        }
+#endif
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsureInstance()
         {
@@ -38,7 +58,8 @@ namespace AillieoTech.Game
 
         private void OnEnable()
         {
-            this.current.camera = Camera.main;
+            this.currentCamera = Camera.main;
+            this.current.camera = this.currentCamera;
 
             this.mouseEvents.OnMouseDragStart += this.OnDragStart;
             this.mouseEvents.OnMouseDrag += this.OnDrag;

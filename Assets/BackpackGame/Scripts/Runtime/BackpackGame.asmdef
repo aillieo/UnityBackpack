@@ -1,0 +1,22 @@
+{
+    "name": "BackpackGame",
+    "rootNamespace": "",
+    "references": [
+        "AillieoUtils.UnitySingleton"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.aillieo.unity-singleton",
+            "expression": "",
+            "define": "AILLIEO_UNITY_SINGLETON"
+        }
+    ],
+    "noEngineReferences": false
+}

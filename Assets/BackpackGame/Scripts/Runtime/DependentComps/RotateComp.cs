@@ -19,7 +19,7 @@ namespace AillieoTech.Game
 
         private Coroutine coroutine;
         private float targetRotation = 0f;
-        private float rotationSpeedFactor = 2.4f;
+        private const float rotationSpeedFactor = 2.4f;
 
         private int currentRotationIndexValue;
 
@@ -84,7 +84,7 @@ namespace AillieoTech.Game
                 this.transform.eulerAngles = new Vector3(0f, 0f, currentRotation);
 
                 // 更新计时器
-                rotateRatio += Time.deltaTime * this.rotationSpeedFactor;
+                rotateRatio += Time.deltaTime * rotationSpeedFactor;
 
                 yield return null;
             }

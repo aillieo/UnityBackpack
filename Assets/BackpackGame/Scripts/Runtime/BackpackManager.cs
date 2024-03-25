@@ -8,12 +8,18 @@ namespace AillieoTech.Game
 {
     using System;
     using System.Collections.Generic;
-    using AillieoUtils;
     using UnityEngine;
     using UnityEngine.Assertions;
 
-    public class BackpackManager : Singleton<BackpackManager>
+#if AILLIEO_UNITY_SINGLETON
+    public class BackpackManager : AillieoUtils.Singleton<BackpackManager>
     {
+#else
+    public class BackpackManager
+    {
+        public static readonly BackpackManager Instance = new BackpackManager();
+#endif
+
         public event Action<bool> OnChangeSlotVisibilityRequested;
 
         private WallComp wallCompValue;
@@ -203,14 +209,7 @@ namespace AillieoTech.Game
                     var worldGrid = new Vector2Int(x, y);
                     var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
 
-                    // 检查是否有子物体 有的话 先detach
-                    //if (gridToItemLookup.TryGetValue(wallLocal, out var item))
-                    //{
-                    //    DetachItem(item);
-                    //    item.physicsComp.SwitchSimulation(true);
-                    //}
-
-                    wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Backpack);
+                    wallGridData.gridData[wallLocal.x, wallLocal.y] &= ~GridLayer.Backpack;
 
                     Assert.IsTrue(this.gridToContainerLookup.Remove(wallLocal));
                 }
@@ -249,7 +248,7 @@ namespace AillieoTech.Game
 
                     var worldGrid = new Vector2Int(x, y);
                     var wallLocal = wallGridData.WorldGridToLocalGrid(worldGrid);
-                    wallGridData.gridData[wallLocal.x, wallLocal.y] &= (~GridLayer.Item);
+                    wallGridData.gridData[wallLocal.x, wallLocal.y] &= ~GridLayer.Item;
 
                     Assert.IsTrue(this.gridToItemLookup.Remove(wallLocal));
                 }

@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------
-// <copyright file="GridDataDrawer.cs" company="AillieoTech">
+// <copyright file="GridDataCompEditor.cs" company="AillieoTech">
 // Copyright (c) AillieoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------

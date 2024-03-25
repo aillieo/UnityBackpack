@@ -79,14 +79,12 @@ namespace AillieoTech.Game
         {
             this.draggableComp.OnDragBegin += this.OnDragStart;
             this.draggableComp.OnDragEnd += this.OnDragEnd;
-            this.rotateComp.OnRotationIndexChanged += this.OnRotationIndexChanged;
         }
 
         private void OnDisable()
         {
             this.draggableComp.OnDragBegin -= this.OnDragStart;
             this.draggableComp.OnDragEnd -= this.OnDragEnd;
-            this.rotateComp.OnRotationIndexChanged -= this.OnRotationIndexChanged;
         }
 
         public void OnDragEnd(MouseEventData eventData)
@@ -115,15 +113,9 @@ namespace AillieoTech.Game
             var detached = BackpackManager.Instance.DetachItem(this);
             if (!detached)
             {
-                //this.rotateComp.FixRotation();
             }
 
             BackpackManager.Instance.wallComp.SetRenererVisible(true);
-        }
-
-        private void OnRotationIndexChanged()
-        {
-            UnityEngine.Debug.Log("OnRotationIndexChanged: " + this.name);
         }
     }
 }

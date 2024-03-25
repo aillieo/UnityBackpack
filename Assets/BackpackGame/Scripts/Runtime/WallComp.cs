@@ -33,22 +33,6 @@ namespace AillieoTech.Game
             this.SetRenererVisible(false);
         }
 
-        private void OnDrawGizmos()
-        {
-            // 绘制wallGrids
-            var start = this.gridData.GetWorldGridStart();
-            var shape = this.gridData.GetWorldShape();
-
-            for (var x = 0; x < shape.x; x++)
-            {
-                for (var y = 0; y < shape.y; y++)
-                {
-                    var worldGrid = start + new Vector2Int(x, y);
-                    var worldPosition = GridUtils.GridPositionToWorldPosition(worldGrid);
-                }
-            }
-        }
-
         [SerializeField]
         private Renderer wallRenderer;
 
